@@ -25,5 +25,5 @@ For collaboration:
 
 Owner: Sophia Brown
 
-Collaborator: Rei Miyashirp
+Collaborator: Rei Miyashiro
 
