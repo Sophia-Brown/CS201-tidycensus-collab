@@ -246,8 +246,18 @@ edu_attainment <- get_acs(
 ### Mapping
 
 ```{r, message=FALSE, warning=FALSE, results='hide'}
+edu_attainment_map <- ggplot(edu_attainment) +
+  geom_sf_interactive(
+    aes(fill = percent_povertyE,
+        tooltip = paste0(NAME, ": ", percent_povertyE, "%"),
+        data_id = NAME),
+    color = NA
+  ) +
+  scale_fill_viridis_c(option = "plasma", name = "Poverty (%)") +
+  theme_void() +
+  labs(title = "Percent Living Below Poverty Line by Tract (Honolulu)")
 
-
+girafe(ggobj = edu_attainment_map, width = 7, height = 4)
 ```
 
 ### Time Series
