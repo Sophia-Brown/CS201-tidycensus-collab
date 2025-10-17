@@ -227,9 +227,20 @@ REMEMBER! [Pull]{.underline} before working in the `-collab.qmd` file. [Save, Co
 
 Investigating (insert variable here) on Oahu at the census tract level.
 
+Percent!!EDUCATIONAL ATTAINMENT!!Population 25 years and over!!Bachelor's degree
+
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 
 
+edu_attainment <- get_acs(
+  geography = "tract",
+  variables = c(percent_poverty = "DP02_0065P"),
+  state = "HI",
+  county = "Honolulu",
+  geometry = TRUE,
+  output = "wide",
+  year = 2023) %>% 
+  dplyr::filter(GEOID != "15003981200" & GEOID !="15003981900") # filters out tract in NW Hawaiian Islands that makes map very small and Mamala Bay Golf Course that has %100 percent of families living below the poverty line(??)
 ```
 
 ### Mapping
