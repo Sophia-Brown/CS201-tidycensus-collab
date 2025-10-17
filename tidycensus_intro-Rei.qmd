@@ -10,9 +10,9 @@ toc: true
 ## Install and Load Libraries
 
 ```{r Libraries}
-install.packages("tidycensus")
-install.packages("reactable")
-install.packages("ggpubr")
+#install.packages("tidycensus")
+#install.packages("reactable")
+#install.packages("ggpubr")
 
 library(tidycensus)  # star of the show, what we will use to import data
 library(tidyverse) # you know her
@@ -264,6 +264,44 @@ girafe(ggobj = edu_attainment_map, width = 7, height = 4)
 
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 
+years <- 2019:2023 # specify years
+names(years) <- years
+
+edu_attainment_2019_2023 <- map_dfr(years, ~{
+  get_acs(
+    geography = "county",
+    variables = c(percent_poverty = "DP02_0065P"),
+    state = "HI",
+    county = "Honolulu",
+    year = .x,
+    survey = "acs5")}, .id = "year")
+
+
+ggplot(edu_attainment_2019_2023, aes(x = year, y = estimate, group = 1)) + 
+  geom_line() + 
+  geom_point() +
+  labs(
+    title = "Honolulu County Educational Attainment (ACS Rolling 5-year Estimates)",
+    x = "ACS Release Year (5-year window)",
+    y = "Percent with Bachelor's Degree or Higher"
+  ) +
+  theme_minimal()
+
+
+
+# more informative and nicer to look at
+
+ggplot(edu_attainment_2019_2023, aes(x = year, y = estimate, group = 1)) + 
+  geom_ribbon(aes(ymax = estimate + moe, ymin = estimate - moe), 
+              fill = "steelblue",
+              alpha = 0.4) + 
+  geom_line(color = "steelblue") + 
+  geom_point(color = "steelblue", size = 2) + 
+  theme_minimal() + 
+  labs(title = "Honolulu County Educational Attainment (ACS Rolling 5-year Estimates)",
+    x = "ACS Release Year (5-year window)",
+    y = "Percent with Bachelor's Degree or Higher",
+       caption = "Shaded area represents margin of error around the estimate")
 
 ```
 
