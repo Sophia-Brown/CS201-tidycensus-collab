@@ -311,7 +311,14 @@ Exploring the relationship between (insert variable here) and (insert variable h
 
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 
-
+ggplot(edu_attainment_2019_2023, aes(x = as.numeric(year), y = estimate)) +
+  geom_point(size = 3, color = "steelblue") +
+  labs(
+    title = "Exploring the Relationship Between Year and Poverty Rate in Honolulu County",
+    x = "Year",
+    y = "Percent Below Poverty Line"
+  ) +
+  theme_minimal()
 ```
 
 ### Describe what you found
