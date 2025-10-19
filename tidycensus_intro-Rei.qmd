@@ -230,7 +230,7 @@ Investigating (insert variable here) on Oahu at the census tract level.
 Percent!!EDUCATIONAL ATTAINMENT!!Population 25 years and over!!Bachelor's degree
 
 ```{r, message=FALSE, warning=FALSE, results='hide'}
-
+# We chose the data about educationnal attainment of Bachelor's degree
 
 edu_attainment <- get_acs(
   geography = "tract",
@@ -255,7 +255,7 @@ edu_attainment_map <- ggplot(edu_attainment) +
   ) +
   scale_fill_viridis_c(option = "plasma", name = "Poverty (%)") +
   theme_void() +
-  labs(title = "Percent Living Below Poverty Line by Tract (Honolulu)")
+  labs(title = "Percentage of adults aged 25 and older in Honolulu who hold a bachelor's degree")
 
 girafe(ggobj = edu_attainment_map, width = 7, height = 4)
 ```
@@ -264,13 +264,13 @@ girafe(ggobj = edu_attainment_map, width = 7, height = 4)
 
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 
-years <- 2019:2023 # specify years
+years <- 2010:2018 # specify years
 names(years) <- years
 
 edu_attainment_2019_2023 <- map_dfr(years, ~{
   get_acs(
     geography = "county",
-    variables = c(percent_poverty = "DP02_0065P"),
+    variables = c(percent_BA = "DP02_0065P"),
     state = "HI",
     county = "Honolulu",
     year = .x,
@@ -311,14 +311,42 @@ Exploring the relationship between (insert variable here) and (insert variable h
 
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 
-ggplot(edu_attainment_2019_2023, aes(x = as.numeric(year), y = estimate)) +
-  geom_point(size = 3, color = "steelblue") +
-  labs(
-    title = "Exploring the Relationship Between Year and Poverty Rate in Honolulu County",
-    x = "Year",
-    y = "Percent Below Poverty Line"
-  ) +
-  theme_minimal()
+
+oahu_family_ba_income <- get_acs(
+  geography = "tract",
+  variables = c(percent_BA = "DP02_0065P", # Percent with BA
+                percent_icome = "DP03_0062E"), # household income 
+  state = "HI",
+  county = "Honolulu",
+  geometry = TRUE,
+  output = "wide",
+  year = 2023) %>% 
+  dplyr::filter(GEOID != "15003981200" & GEOID !="15003981900") 
+
+
+
+
+
+ggplot(oahu_family_ba_income, aes(x = percent_BAE,y = percent_icome)) +
+  geom_point() +
+  geom_smooth() + # adds a regression line (LOESS)
+  stat_cor() + # prints R and p
+  theme_minimal() + 
+  labs(title = "Comparing Rates of Higher Education to Median Household Income, Honolulu County",
+       subtitle = "ACS 5-year, 2023 release",
+       x = "Percent with BA ",
+       y = "House Hold Income",
+       caption = "Shaded area represents margin of error around the estimate")
+
+
 ```
 
 ### Describe what you found
+
+In the mapping, it shows that the Western O'ahu tends to have the lower rate. In contrast, the areas like waikiki, hawaii kai, and manoa seems to have high rate.
+
+In the time series, it shows the percentage of adults aged 25 and older in Honolulu who hold a bachelor's degree. When I tried to plotted from 2014 - 2023 similar to example, the data show a sudden spike between 2018 and 2019. So, we changed a range between 2010 to 2018.
+
+From 2010 to 2018, the percentage gradually increased. So, younger generation can have the higher education levels.
+
+In the scatter plot part, we compare the Percent with Bachelor's degree and household income. The Correlation is R = 0.42 so it kind of like a positive relationship. So, it means percent with BA increase , income also increase. And p-value is 1.3e-14, so it means statistically significant, not a random chance. And x-axis ended near 50%, so it can represent that Honolulu's most educated areas, about half of adults hold a bachelor's degree.
